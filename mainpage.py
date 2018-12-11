@@ -2,7 +2,10 @@ import os
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 
+import sys
 import openpyxl
+import pandas as pandas
+import pandas as pd
 import xlrd
 import xlsxwriter
 from docx import Document
@@ -14,6 +17,51 @@ def is_number(string):
         return True
     except ValueError:
         return False
+
+
+def combine_all_sheets(file):
+    directory = os.path.dirname(file)
+    fileNames = os.listdir(directory)
+    files_temp = []
+    files_scores_temp = []
+    if len(fileNames) <= 2:
+        raise Exception("Please enter a valid number (Digit not word) For Questions")
+        sys.exit("Error")
+
+    # Separate the Scores vs full sheets.
+    for f in fileNames:
+        if f.endswith(".xlsx") and "Full" not in f:
+            if "Scores" not in f:
+                files_temp.append(directory + "/" + f)
+            else:
+                files_scores_temp.append(directory + "/" + f)
+
+    # Converts the excel sheets into a readable and PARSEABLE form.
+    files = [pd.ExcelFile(name) for name in files_temp]
+    files_scores = [pd.ExcelFile(name) for name in files_scores_temp]
+
+    # turn them into dataframes
+    frames = [x.parse(x.sheet_names[0], header=None, index_col=None) for x in files]
+    # delete the first row for all frames except the first
+    # i.e. remove the header row -- assumes it's the first
+    frames[1:] = [df[1:] for df in frames[1:]]
+
+    frames_scores = [x.parse(x.sheet_names[0], header=None, index_col=None) for x in files_scores]
+    frames_scores[1:] = [df[1:] for df in frames_scores[1:]]
+
+    # concatenate them..
+    combined = pd.concat(frames)
+    combined_scores = pd.concat(frames_scores)
+
+    # Combines the excel sheets
+    combined.to_excel(directory + "/" + "Full Intakes.xlsx", header=False, index=False)
+    combined_scores.to_excel(directory + "/" + "Full Intakes-Scores.xlsx", header=False, index=False)
+
+    # Resize the columns for the two new excel sheets.
+    resize_columns(directory + "/" + "Full Intakes.xlsx")
+    resize_columns(directory + "/" + "Full Intakes-Scores.xlsx")
+
+    sys.exit(0)
 
 
 # This will create the excel sheet with all the formatting on it
@@ -128,12 +176,10 @@ def score_sheet(worksheet, worksheet_scores, filename, row):
             sheet.write(row, index, x)
 
 
-def resize_columns(excel_name, score_name):
+def resize_columns(excel_name):
     # This reopens the excel file but in the openpyxl library allowing us to alter column lengths
     wb = openpyxl.load_workbook(excel_name)
     worksheet = wb.active
-    wb_scores = openpyxl.load_workbook(scores_name)
-    worksheet_score = wb_scores.active
 
     for col in worksheet.columns:
         max_length = 0
@@ -147,19 +193,7 @@ def resize_columns(excel_name, score_name):
         adjusted_width = (max_length + 2) * 1.2
         worksheet.column_dimensions[column].width = adjusted_width
 
-    for col in worksheet_score.columns:
-        max_length = 0
-        column = col[0].column  # Get the Column Name Here
-        for cell in col:
-            try:  # Needed to avoid empty cell errors
-                if len(str(cell.value)) > max_length:
-                    max_length = len(cell.value)
-            except:
-                pass
-        adjusted_width = (max_length + 2) * 1.2
-        worksheet_score.column_dimensions[column].width = adjusted_width
     wb.save(excel_name)
-    wb_scores.save(scores_name)
 
 
 def create_docx_template(excel_name, docx_name, file_title):
@@ -200,6 +234,11 @@ def create_docx_template(excel_name, docx_name, file_title):
 
 Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
 file = askopenfilename()  # show an "Open" dialog box and return the path to the selected file
+
+# If the file is an excel sheet, it will try to combine all of the excel sheets in the folder together.
+if file.endswith('.xlsx'):
+    combine_all_sheets(file)
+
 # This will open the document, allowing it to be read.
 directory = os.path.dirname(file)
 file_title = os.path.basename(directory)
@@ -238,5 +277,6 @@ for files in fileNames:
         continue
 workbook.close()
 workbook_scores.close()
-resize_columns(excel_name, scores_name)
+resize_columns(excel_name)
+resize_columns(scores_name)
 create_docx_template(excel_name, docx_name, file_title)
