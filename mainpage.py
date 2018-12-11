@@ -1,15 +1,11 @@
+import os
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
-import os
-from datetime import date
+
+import openpyxl
+import xlrd
 import xlsxwriter
 from docx import Document
-from docx.shared import Inches
-import openpyxl
-from os import listdir
-from os.path import isfile, join
-import xlrd
-from openpyxl.worksheet import Worksheet
 
 
 def is_number(string):
@@ -76,7 +72,8 @@ def define_sheet(worksheet, worksheet_scores, file):
             worksheet_scores.write(0, index, x)
 
 
-def alter_sheet(worksheet, worksheet_scores, filename, row):
+# This wi
+def score_sheet(worksheet, worksheet_scores, filename, row):
     doc = Document(filename)
     inputs = []
     data = []
@@ -165,7 +162,7 @@ def resize_columns(excel_name, score_name):
     wb_scores.save(scores_name)
 
 
-def create_docx_template(excel_name, docx_name):
+def create_docx_template(excel_name, docx_name, file_title):
     # Here will create a template in a docx file for the quiz templates
     workbook = xlrd.open_workbook(excel_name)
     worksheet = workbook.sheet_by_index(0)
@@ -191,6 +188,8 @@ def create_docx_template(excel_name, docx_name):
     doc.add_paragraph("Facilitator:")
     doc.add_paragraph("Topic:")
     doc.add_paragraph("Week:")
+    doc.add_paragraph("Group:" + file_title)
+    doc.add_paragraph("Questions:")
     doc.add_paragraph("")
 
     # Fills the file with ID's genders, ages, races in a template format.
@@ -206,17 +205,17 @@ directory = os.path.dirname(file)
 file_title = os.path.basename(directory)
 
 # Create the Path needed
-newPath = 'C:/Desktop/Intake'
+newPath = 'C:/VantagePoint/Intake'
 if not os.path.exists(newPath):
     os.makedirs(newPath)
-newPath = 'C:/Desktop/Quiz-Template'
+newPath = 'C:/VantagePoint/Quiz-Template'
 if not os.path.exists(newPath):
     os.makedirs(newPath)
 
 # Make all the file names
-excel_name = os.path.join("C:/Desktop/Intake/" + file_title + ".xlsx")
-docx_name = os.path.join("C:/Desktop/Quiz-Template/" + file_title + "-QuizTemplate.docx")
-scores_name = os.path.join("C:/Desktop/Intake/" + file_title + "-Scores.xlsx")
+excel_name = os.path.join("C:/VantagePoint/Intake/" + file_title + ".xlsx")
+docx_name = os.path.join("C:/VantagePoint/Quiz-Template/" + file_title + "-QuizTemplate.docx")
+scores_name = os.path.join("C:/VantagePoint/Intake/" + file_title + "-Scores.xlsx")
 
 # Create the two Workbooks here
 workbook = xlsxwriter.Workbook(excel_name)
@@ -233,11 +232,11 @@ fileNames = os.listdir(directory)
 for files in fileNames:
     if ".docx" in files:
         filename = directory + "/" + files
-        alter_sheet(worksheet, workbook_scores, filename, row)
+        score_sheet(worksheet, workbook_scores, filename, row)
         row = row + 1
     else:
         continue
 workbook.close()
 workbook_scores.close()
 resize_columns(excel_name, scores_name)
-create_docx_template(excel_name, docx_name)
+create_docx_template(excel_name, docx_name, file_title)
