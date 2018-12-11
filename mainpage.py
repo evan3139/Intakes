@@ -45,14 +45,14 @@ def combine_all_sheets(file):
     files_scores = [pd.ExcelFile(name) for name in files_scores_temp]
 
     # turn them into dataframes
-    frames = [x.parse(x.sheet_names[0], header=None, index_col=None, na_filter = False) for x in files]
+    frames = [x.parse(x.sheet_names[0], header=None, index_col=None, na_filter=False) for x in files]
     # delete the first row for all frames except the first
     # i.e. remove the header row -- assumes it's the first
     frames[1:] = [df[1:] for df in frames[1:]]
 
     # Make sure to do NA_FILTER = FALSE. This will make sure any and all N/A stays N/A rather than becoming an empty
     # cell.
-    frames_scores = [x.parse(x.sheet_names[0], header=None, index_col=None, na_filter = False) for x in files_scores]
+    frames_scores = [x.parse(x.sheet_names[0], header=None, index_col=None, na_filter=False) for x in files_scores]
     frames_scores[1:] = [df[1:] for df in frames_scores[1:]]
 
     # concatenate them..
@@ -98,45 +98,62 @@ def combine_all_sheets(file):
     sys.exit(0)
 
 
-# This will create the excel sheet with all the formatting on it
-def define_sheet(worksheet, worksheet_scores, file):
+# This will read a docx file and put every line into a list.
+def read_docx(file):
     contents = []
-    header = []
-    content = []
-    score_header = []
-
     doc = Document(file)
-
     for line in doc.paragraphs:
         line.text = line.text.strip()
         if line.text == "":
             continue
         else:
             contents.append(line.text)
+    return contents
+
+
+# This will create the heading for th excel sheet with only the scores in it and not the total intake.
+def define_sheet_scores(worksheet, file):
+    header = []
+    contents = read_docx(file)
+
+    for index, x in enumerate(contents):
+        if ":" in x:
+            headers, values = x.split(":")
+            if headers.lower() == "name":
+                header.append(headers)
+            elif "date" in x.lower():
+                header.append(headers)
+            elif "age" in x.lower():
+                header.append(headers)
+            elif "gender" in x.lower():
+                header.append(headers)
+            elif "race" in x.lower():
+                header.append(headers)
+            elif "bdi" in x.lower():
+                header.append(headers)
+            elif "ace" in x.lower():
+                header.append(headers)
+            elif "cage" in x.lower():
+                header.append(headers)
+            elif "bai" in x.lower():
+                header.append(headers)
+
+    for index, x in enumerate(header):
+        if is_number(header[index]):
+            worksheet.write(0, index, int(x))
+        else:
+            worksheet.write(0, index, x)
+
+
+# This will create the excel sheet with all the formatting on it for the total inatke sheet
+def define_sheet_full(worksheet, file):
+    contents = read_docx(file)
+    header = []
 
     for index, x in enumerate(contents):
         if ":" in x:
             headers, values = x.split(":")
             header.append(headers)
-            content.append(values)
-            if headers.lower() == "name":
-                score_header.append(headers)
-            elif "date" in x.lower():
-                score_header.append(headers)
-            elif "age" in x.lower():
-                score_header.append(headers)
-            elif "gender" in x.lower():
-                score_header.append(headers)
-            elif "race" in x.lower():
-                score_header.append(headers)
-            elif "bdi" in x.lower():
-                score_header.append(headers)
-            elif "ace" in x.lower():
-                score_header.append(headers)
-            elif "cage" in x.lower():
-                score_header.append(headers)
-            elif "bai" in x.lower():
-                score_header.append(headers)
         else:
             header.append(x)
 
@@ -147,54 +164,17 @@ def define_sheet(worksheet, worksheet_scores, file):
         else:
             worksheet.write(0, index, header[index])
 
-    for index, x in enumerate(score_header):
-        if is_number(score_header[index]):
-            worksheet_scores.write(0, index, int(x))
-        else:
-            worksheet_scores.write(0, index, x)
 
-
-# This wi
-def score_sheet(worksheet, worksheet_scores, filename, row):
-    doc = Document(filename)
-    inputs = []
+def full_sheet_fill(worksheet, file, row):
+    inputs = read_docx(file)
     data = []
-    score_data = []
-
-    for line in doc.paragraphs:
-        line.text = line.text.strip()
-        if line.text == "":
-            continue
-        else:
-            inputs.append(line.text)
 
     for index, i in enumerate(inputs):
         if ":" in i:
-            useless, values = i.split(":")
+            header, values = i.split(":")
             data.append(values)
-            if useless.lower() == "name":
-                score_data.append(values)
-            elif "date" in i.lower():
-                score_data.append(values)
-            elif "age" in i.lower():
-                score_data.append(values)
-            elif "gender" in i.lower():
-                score_data.append(values)
-            elif "race" in i.lower():
-                score_data.append(values)
-            elif "bdi" in i.lower():
-                score_data.append(values)
-            elif "ace" in i.lower():
-                score_data.append(values)
-            elif "cage" in i.lower():
-                score_data.append(values)
-            elif "bai" in i.lower():
-                score_data.append(values)
-        else:
-            data.append(i)
 
     data = [x.strip() for x in data]
-    score_data = [x.strip() for x in score_data]
     data[1] = data[1].replace(" ", "")
 
     for index, x in enumerate(data):
@@ -203,11 +183,41 @@ def score_sheet(worksheet, worksheet_scores, filename, row):
         else:
             worksheet.write(row, index, x)
 
-    for index, x in enumerate(score_data):
+
+# This will fill the data for the scores only sheet.
+def score_sheet_fill(worksheet, file, row):
+    data = []
+    inputs = read_docx(file)
+
+    for index, i in enumerate(inputs):
+        if ":" in i:
+            useless, values = i.split(":")
+            if useless.lower() == "name":
+                data.append(values)
+            elif "date" in i.lower():
+                data.append(values)
+            elif "age" in i.lower():
+                data.append(values)
+            elif "gender" in i.lower():
+                data.append(values)
+            elif "race" in i.lower():
+                data.append(values)
+            elif "bdi" in i.lower():
+                data.append(values)
+            elif "ace" in i.lower():
+                data.append(values)
+            elif "cage" in i.lower():
+                data.append(values)
+            elif "bai" in i.lower():
+                data.append(values)
+
+    data = [x.strip() for x in data]
+
+    for index, x in enumerate(data):
         if is_number(x):
-            sheet.write(row, index, int(x))
+            worksheet.write(row, index, int(x))
         else:
-            sheet.write(row, index, x)
+            worksheet.write(row, index, x)
 
 
 def resize_columns(excel_name):
@@ -286,6 +296,8 @@ newPath = 'C:/VantagePoint/Quiz-Template'
 if not os.path.exists(newPath):
     os.makedirs(newPath)
 
+row = 1
+
 # Make all the file names
 excel_name = os.path.join("C:/VantagePoint/Intake/" + file_title + ".xlsx")
 docx_name = os.path.join("C:/VantagePoint/Quiz-Template/" + file_title + "-QuizTemplate.docx")
@@ -295,18 +307,18 @@ scores_name = os.path.join("C:/VantagePoint/Intake/" + file_title + "-Scores.xls
 workbook = xlsxwriter.Workbook(excel_name)
 worksheet = workbook.add_worksheet()
 workbook_scores = xlsxwriter.Workbook(scores_name)
-sheet = workbook_scores.add_worksheet()
+fileNames = os.listdir(directory)
+worksheet_scores = workbook_scores.add_worksheet()
 
 # calls the define sheet method which creates the heading of the sheet
-define_sheet(worksheet, sheet, file)
+define_sheet_full(worksheet, file)
+define_sheet_scores(worksheet_scores, file)
 
-row = 1
-
-fileNames = os.listdir(directory)
 for files in fileNames:
     if ".docx" in files:
         filename = directory + "/" + files
-        score_sheet(worksheet, workbook_scores, filename, row)
+        score_sheet_fill(worksheet_scores, workbook_scores, filename, row)
+        full_sheet_fill(worksheet, workbook, filename, row)
         row = row + 1
     else:
         continue
