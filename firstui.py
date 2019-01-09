@@ -195,8 +195,8 @@ for index, x in enumerate(lines):
 newpath = 'C:/VantagePoint/Quizzes' + "/" + str(contents[4].strip())
 if not os.path.exists(newpath):
     os.makedirs(newpath)
-excel_name = os.path.join(newpath + "/week" + str(contents[3]) +  "-" + str(contents[4]) + ".xlsx")
-docx_name = os.path.join(newpath + "/week" + str(contents[3]) + "-" + str(contents[4]) + ".docx")
+excel_name = os.path.join(newpath + "/" + str(contents[2]) + "-" + str(contents[4]) + ".xlsx")
+docx_name = os.path.join(newpath + "/" + str(contents[2]) + "-" + str(contents[4]) + ".docx")
 print(docx_name)
 
 # Copy the file so we can reset the original to make it more user friendly
