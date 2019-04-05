@@ -4,6 +4,7 @@ from tkinter.filedialog import askopenfilename
 
 import sys
 import openpyxl
+from openpyxl.utils import get_column_letter
 import pandas as pandas
 import pandas as pd
 import xlrd
@@ -217,7 +218,9 @@ def resize_columns(excel_name):
 
     for col in worksheet.columns:
         max_length = 0
+        print(col[0].column)
         column = col[0].column  # Get the Column Name Here
+        print(column)
         for cell in col:
             try:  # Needed to avoid empty cell errors
                 if len(str(cell.value)) > max_length:
@@ -225,7 +228,7 @@ def resize_columns(excel_name):
             except:
                 pass
         adjusted_width = (max_length + 2) * 1.2
-        worksheet.column_dimensions[column].width = adjusted_width
+        worksheet.column_dimensions[get_column_letter(column)].width = adjusted_width
 
     wb.save(excel_name)
 
