@@ -10,6 +10,7 @@ import pandas as pd
 import xlrd
 import xlsxwriter
 from docx import Document
+from Demographics import *
 
 
 def is_number(string):
@@ -95,6 +96,8 @@ def combine_all_sheets(file):
 
     # combined_scores.to_excel(directory + "/" + "Full Intakes-Scores.xlsx", header=False, index=False, na_rep='NA')
     # resize_columns(directory + "/" + "Full Intakes-Scores-AgeSort.xlsx")
+    demographics(newPath + "Full Intakes-Scores-RaceSort.xlsx","Race",)
+    demographics_number_groups(newPath + "Full Intakes-Scores-AgeSort.xlsx","Age",[29,40,55])
 
     sys.exit(0)
 
@@ -218,9 +221,7 @@ def resize_columns(excel_name):
 
     for col in worksheet.columns:
         max_length = 0
-        print(col[0].column)
         column = col[0].column  # Get the Column Name Here
-        print(column)
         for cell in col:
             try:  # Needed to avoid empty cell errors
                 if len(str(cell.value)) > max_length:
