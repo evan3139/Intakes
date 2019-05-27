@@ -5,36 +5,9 @@ import xlsxwriter
 from docx import Document
 import openpyxl
 from shutil import copyfile
-
-
-# This checks if the string in full list is a number (score for the quiz) or their ID.
-
-def is_number(string):
-    try:
-        float(string)
-        return True
-    except ValueError:
-        return False
-
-
-def resize_columns(excel_name):
-    # This reopens the excel file but in the openpyxl library allowing us to alter column lengths
-    wb = openpyxl.load_workbook(excel_name)
-    worksheet = wb.active
-
-    for col in worksheet.columns:
-        max_length = 0
-        column = col[0].column  # Get the Column Name Here
-        for cell in col:
-            try:  # Needed to avoid empty cell errors
-                if len(str(cell.value)) > max_length:
-                    max_length = len(cell.value)
-            except:
-                pass
-        adjusted_width = (max_length + 2) * 1.2
-        worksheet.column_dimensions[column].width = adjusted_width
-
-    wb.save(excel_name)
+from IsNumber import is_number
+from ResizeColumn import resize_columns
+from quiz_combined import *
 
 
 # The function call for putting everything into an excel sheet.
@@ -113,6 +86,14 @@ def remake_template(names, headers, contents, genders, ages, races, filename, gr
 Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
 filename = askopenfilename()  # show an "Open" dialog box and return the path to the selected file
 # This will open the document, allowing it to be read.
+
+directory = os.path.dirname(filename)
+file_title = os.path.basename(directory)
+
+if filename.endswith('.xlsx'):
+    quiz_combined(filename)
+
+
 doc = Document(filename)
 
 # This will create an array for scores then fulllist which will seperate names from scores
@@ -132,6 +113,8 @@ group = " "
 for para in doc.paragraphs:
     # If its an empty line do this
     if para.text == "":
+        continue
+    elif para.text.isspace():
         continue
     else:
         lines.append(para.text)
@@ -178,7 +161,10 @@ for index, x in enumerate(lines):
         except ValueError:
             raise Exception("Please enter a valid number (Digit not word) For Questions")
     else:
+        print(x)
         name, score = x.split(":")
+        print(name)
+        print(score)
         if is_number(score):
             # Do the math for right vs total
             score_num = int(score) / divide_by
@@ -195,6 +181,8 @@ for index, x in enumerate(lines):
 newpath = 'C:/VantagePoint/Quizzes' + "/" + str(contents[4].strip())
 if not os.path.exists(newpath):
     os.makedirs(newpath)
+
+
 excel_name = os.path.join(newpath + "/" + str(contents[2]) + "-" + str(contents[4]) + ".xlsx")
 docx_name = os.path.join(newpath + "/" + str(contents[2]) + "-" + str(contents[4]) + ".docx")
 print(docx_name)
