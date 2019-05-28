@@ -43,7 +43,6 @@ def demographics_number_groups(excel_name, trigger, spots_to_space):
 
     for col in worksheet.columns:
         column = col[0].value  # Get the Column Name Here
-        print(column)
         if column == trigger:
             idx = 0
             i = 0
