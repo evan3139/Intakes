@@ -3,7 +3,7 @@ from IsNumber import is_number
 import math
 
 
-def get_col_average(excel_name):
+def get_group_average(excel_name):
     wb = openpyxl.load_workbook(excel_name, data_only=True)
     ws = wb.active
 

@@ -95,7 +95,7 @@ def quiz_combined(file):
     demographics(newPaths[2] + folder + "-Quizzes-Scores-RaceSort.xlsx", "Race", )
     demographics_number_groups(newPaths[1] + folder + "-Quizzes-Scores-AgeSort.xlsx", "Age", [29, 40, 55])
 
-    get_col_average(newPaths[1] + folder + "-Quizzes-Scores-AgeSort.xlsx")
-    get_col_average(newPaths[2] + folder + "-Quizzes-Scores-RaceSort.xlsx")
+    get_group_average(newPaths[1] + folder + "-Quizzes-Scores-AgeSort.xlsx")
+    get_group_average(newPaths[2] + folder + "-Quizzes-Scores-RaceSort.xlsx")
 
     sys.exit(0)

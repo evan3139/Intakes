@@ -4,6 +4,7 @@ import pandas as pd
 
 from Demographics import *
 from ResizeColumn import resize_columns
+from GLOBALS import *
 
 
 def combine_all_sheets(file):
@@ -72,7 +73,7 @@ def combine_all_sheets(file):
     sort_age.to_excel(newPath + "Full Intakes-Scores-AgeSort.xlsx", header=False, index=False, na_rep='NA')
     resize_columns(newPath + "Full Intakes-Scores-AgeSort.xlsx")
 
-    sort_race[4] = pd.Categorical(sort_race[4], ["W", "B", "L", "A", "NA", "O", "N/A"])
+    sort_race[4] = pd.Categorical(sort_race[4], RACES)
     sort_race.sort_values(4, inplace=True)
     sort_race = top_of_file.append(sort_race)
 
@@ -82,6 +83,6 @@ def combine_all_sheets(file):
     # combined_scores.to_excel(directory + "/" + "Full Intakes-Scores.xlsx", header=False, index=False, na_rep='NA')
     # resize_columns(directory + "/" + "Full Intakes-Scores-AgeSort.xlsx")
     demographics(newPath + "Full Intakes-Scores-RaceSort.xlsx","Race",)
-    demographics_number_groups(newPath + "Full Intakes-Scores-AgeSort.xlsx","Age",[29,40,55])
+    demographics_number_groups(newPath + "Full Intakes-Scores-AgeSort.xlsx","Age",AGES)
 
     sys.exit(0)
