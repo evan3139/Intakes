@@ -8,36 +8,52 @@ from GLOBALS import *
 def combined_average(excel_totals):
     print()
 
-def quiz_totals(excel_data,excel_totals, facility, group):
 
-    read_wb = openpyxl.load_workbook(excel_data,data_only=True)
+def quiz_totals(excel_data, excel_totals, facility, group):
+    read_wb = openpyxl.load_workbook(excel_data, data_only=True)
     read_ws = read_wb.active
-    wb = openpyxl.load_workbook(excel_totals,data_only=True)
+    wb = openpyxl.load_workbook(excel_totals, data_only=True)
     ws = wb.active
+
+    order = []
+    case_insensitive_groups = []
+
+    for groupings in GROUPING_NAMES:
+        case_insensitive_groups.append(groupings.lower())
+
+    # Get the index of each group (White, Black , Ages, Education years Etc)
+    for cell in ws['A']:
+        order.append(cell.value)
+
 
     groupings = []
     trigger = 0
 
-    for x,col in enumerate(read_ws.columns):
-        if col[0].lower() == group.lower():
+    for x, col in enumerate(read_ws.columns):
+        if col[0].value == group:
             for i, cell in enumerate(col):
                 if not cell.value:
                     # i is acting as a decrement here since getting a cell starts at 1
-                    groupings.append(read_ws.cell(row= x+1, column=i))
+                    groupings.append(read_ws.cell(row=i, column=x + 1).value)
+                if i == len(col) - 1 and (read_ws.cell(row=len(col) - 1, column=x + 1).value in [None, '']):
+                    groupings.append(cell.value)
             break
 
-    sum = [0] * (len(groupings) + 1)
-    divisor = [0] * (len(groupings) + 1)
-    rows = [None] * (len(groupings) + 1)
+    sum = [0] * (len(groupings))
+    divisor = [0] * (len(groupings))
+    rows = [None] * (len(groupings))
     averages = []
 
-    for col in ws.columns:
+    for col in read_ws.columns:
+
+        # This saves it from crashing due to the empty lines for the average after
+        if col[0].value == None:
+            break
         # this will start iterating only after it hits the ID section
         if trigger == 1:
             idx = 0
             for index, cell in enumerate(col):
                 if not cell.value:
-                    print(idx)
                     rows[idx] = index
                     idx += 1
                 elif is_number(cell.value):
@@ -53,8 +69,14 @@ def quiz_totals(excel_data,excel_totals, facility, group):
             averages.append(math.floor(i / divisor[index]))
 
 
+    for index,col in enumerate(ws.columns):
+        if col[0].value.lower() == facility.lower():
+            for i,x in enumerate(groupings):
+                if isinstance(x,int):
 
+                ws.cell(row=order.index(x) + 1, column=index + 1).value = averages[i]
 
+    ws.save(excel_totals)
 
 
 

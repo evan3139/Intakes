@@ -25,8 +25,8 @@ for i,file in enumerate(files):
 header = []
 groups = []
 
-for files in file_names:
-    for f in files:
+for fi in file_names:
+    for f in fi:
         file = os.path.basename(f)
         file, sep, tail = file.partition("-")
         if file not in header:
@@ -52,8 +52,8 @@ workbook.close()
 format_totals(total, header)
 
 group_index = 0
-for i,f in enumerate(file_names):
-    for x,file in enumerate(f):
-        quiz_totals(file,total,header[x],groups[group_index])
+
+for i,f in enumerate(files):
+    quiz_totals(f,total,header[i],groups[group_index])
     group_index += len(f)
 
