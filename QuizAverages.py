@@ -11,6 +11,7 @@ import openpyxl
 files = []
 directories = []
 file_names = []
+file_titles = []
 
 Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
 for i in range(len(GROUPING_NAMES) + 1):
@@ -18,19 +19,24 @@ for i in range(len(GROUPING_NAMES) + 1):
 
 for i,file in enumerate(files):
     directories.append(os.path.dirname(file))
-    file_names.append(os.listdir(directories[i]))
+    file_titles.append(os.listdir(directories[i]))
+
+for directory in directories:
+    sheets = os.listdir(directory)
+    for f in sheets:
+        if f.endswith(".xlsx"):
+            file_names.append(directory + "/"  + f)
 
 
 # Every title (E.G. Medium 1, medium 2, minimum etc)
 header = []
 groups = []
 
-for fi in file_names:
+for fi in file_titles:
     for f in fi:
         file = os.path.basename(f)
         file, sep, tail = file.partition("-")
-        if file not in header:
-            header.append(file)
+        header.append(file)
 
         # This is because I need which group is being averaged.
         file, sep, tail = tail.partition("Sort")
@@ -52,8 +58,13 @@ workbook.close()
 format_totals(total, header)
 
 group_index = 0
+print(header)
+print(groups)
+print(file_names)
 
-for i,f in enumerate(files):
-    quiz_totals(f,total,header[i],groups[group_index])
-    group_index += len(f)
+for i,f in enumerate(file_names):
+    quiz_totals(f,total,header[i],groups[i])
+
+
+combined_average(total)
 

@@ -39,9 +39,9 @@ def quiz_totals(excel_data, excel_totals, facility, group):
                     groupings.append(cell.value)
             break
 
-    sum = [0] * (len(groupings))
-    divisor = [0] * (len(groupings))
-    rows = [None] * (len(groupings))
+    sum = [0] * (len(groupings) + 1)
+    divisor = [0] * (len(groupings) + 1)
+    rows = [None] * (len(groupings) + 1)
     averages = []
 
     for col in read_ws.columns:
@@ -73,10 +73,22 @@ def quiz_totals(excel_data, excel_totals, facility, group):
         if col[0].value.lower() == facility.lower():
             for i,x in enumerate(groupings):
                 if isinstance(x,int):
+                    if x >= 18:
+                        if x <= 28:
+                            ws.cell(row=order.index("Ages") + 2, column=index + 1).value = averages[i]
+                        elif x <=39:
+                            ws.cell(row=order.index("Ages") + 3, column=index + 1).value = averages[i]
+                        elif x <= 54:
+                            ws.cell(row=order.index("Ages") + 4, column=index + 1).value = averages[i]
+                        elif x >= 55:
+                            ws.cell(row=order.index("Ages") + 5, column=index + 1).value = averages[i]
+                    elif x <= 17:
+                        continue
+                        #THIS WILL BE EDUCATION MAY HAVE TO DO TUPLES SOON IF WE DO CHILDREN AND SHIT BUT FUCK THAT RN
+                else:
+                    ws.cell(row=order.index(x) + 1, column=index + 1).value = averages[i]
 
-                ws.cell(row=order.index(x) + 1, column=index + 1).value = averages[i]
-
-    ws.save(excel_totals)
+    wb.save(excel_totals)
 
 
 
