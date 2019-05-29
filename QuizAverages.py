@@ -36,7 +36,8 @@ for fi in file_titles:
     for f in fi:
         file = os.path.basename(f)
         file, sep, tail = file.partition("-")
-        header.append(file)
+        if file not in header:
+            header.append(file)
 
         # This is because I need which group is being averaged.
         file, sep, tail = tail.partition("Sort")
@@ -58,12 +59,13 @@ workbook.close()
 format_totals(total, header)
 
 group_index = 0
-print(header)
-print(groups)
-print(file_names)
+header_index = 0
 
 for i,f in enumerate(file_names):
-    quiz_totals(f,total,header[i],groups[i])
+    if i == len(header):
+        header_index = 0
+    quiz_totals(f,total,header[header_index],groups[i])
+    header_index += 1
 
 
 combined_average(total)

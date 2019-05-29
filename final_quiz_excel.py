@@ -6,7 +6,34 @@ from GLOBALS import *
 
 
 def combined_average(excel_totals):
-    print()
+
+    wb = openpyxl.load_workbook(excel_totals, data_only=True)
+    ws = wb.active
+
+    skip_header = 0
+
+
+    for row in ws.rows:
+        index = 0
+        sum = 0
+        divisor =0
+        if skip_header > 0:
+            for cell in row:
+                if index > 0:
+                    if cell.column == ws.max_column and divisor != 0:
+                        cell.value = math.floor(sum/divisor)
+                    elif cell.value == None or cell.value == "N/A":
+                        continue
+                    elif is_number(cell.value):
+                        sum += cell.value
+                        divisor += 1
+                index += 1
+
+        skip_header += 1
+
+    wb.save(excel_totals)
+
+
 
 
 def quiz_totals(excel_data, excel_totals, facility, group):
@@ -35,7 +62,7 @@ def quiz_totals(excel_data, excel_totals, facility, group):
                 if not cell.value:
                     # i is acting as a decrement here since getting a cell starts at 1
                     groupings.append(read_ws.cell(row=i, column=x + 1).value)
-                if i == len(col) - 1 and (read_ws.cell(row=len(col) - 1, column=x + 1).value in [None, '']):
+                if i == len(col) - 1:
                     groupings.append(cell.value)
             break
 
@@ -71,6 +98,12 @@ def quiz_totals(excel_data, excel_totals, facility, group):
 
     for index,col in enumerate(ws.columns):
         if col[0].value.lower() == facility.lower():
+            # Fill all of it with N/A so ones we dont fill go to N/A
+            for i,cell in enumerate(col):
+                if i == order.index(None) or ws.cell(row=i + 1, column= 1).value in GROUPING_NAMES:
+                    continue
+                elif not cell.value:
+                    cell.value = "N/A"
             for i,x in enumerate(groupings):
                 if isinstance(x,int):
                     if x >= 18:
