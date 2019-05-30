@@ -1,6 +1,7 @@
 import openpyxl
 import math
 from IsNumber import *
+import re
 
 from GLOBALS import *
 
@@ -97,7 +98,7 @@ def quiz_totals(excel_data, excel_totals, facility, group):
 
 
     for index,col in enumerate(ws.columns):
-        if col[0].value.lower() == facility.lower():
+        if col[0].value is not None and col[0].value.lower() == facility.lower():
             # Fill all of it with N/A so ones we dont fill go to N/A
             for i,cell in enumerate(col):
                 if i == order.index(None) or ws.cell(row=i + 1, column= 1).value in GROUPING_NAMES:
@@ -135,7 +136,7 @@ def format_totals(excel_totals, header):
         ws.cell(row=ws.max_row, column=ws.max_column + 1).value = group
 
     # skip a column for neatness and put all combined
-    ws.cell(row=ws.max_row, column=ws.max_column + 1).value = "All"
+    ws.cell(row=ws.max_row, column=ws.max_column + 2).value = "All"
 
     for i, age in enumerate(AGES):
         if i == len(AGES) - 1:
@@ -154,3 +155,5 @@ def format_totals(excel_totals, header):
             ws.cell(row=ws.max_row + 1, column=1).value = segment
 
     wb.save(excel_totals)
+
+

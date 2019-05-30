@@ -2,6 +2,8 @@ import os
 from tkinter import Tk
 from tkinter.filedialog import askopenfilename
 from final_quiz_excel import *
+from GetTopics import get_topics
+import re
 import xlsxwriter
 import openpyxl
 
@@ -12,6 +14,9 @@ files = []
 directories = []
 file_names = []
 file_titles = []
+topics = []
+
+topic_stopper = 0
 
 Tk().withdraw()  # we don't want a full GUI, so keep the root window from appearing
 for i in range(len(GROUPING_NAMES) + 1):
@@ -26,6 +31,11 @@ for directory in directories:
     for f in sheets:
         if f.endswith(".xlsx"):
             file_names.append(directory + "/"  + f)
+            if topic_stopper == 0:
+                topics = (get_topics(directory + "/"  + f, topics))
+    topic_stopper = 1
+
+print(topics)
 
 
 # Every title (E.G. Medium 1, medium 2, minimum etc)

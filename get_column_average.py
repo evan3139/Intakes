@@ -13,6 +13,7 @@ def get_group_average(excel_name):
     for index, cell in enumerate(ws['A']):
         if not cell.value:
             indexes.append(index)
+    print(indexes)
 
     sum = [0] * (len(indexes) + 1)
     divisor = [0] * (len(indexes) + 1)
@@ -28,15 +29,19 @@ def get_group_average(excel_name):
         if trigger == 1:
             idx = 0
             for index, cell in enumerate(col):
-                if not cell.value:
+                if not cell.value and cell.value != 0:
                     print(idx)
+                    print("FUCK")
                     rows[idx] = index
                     idx += 1
                 elif is_number(cell.value):
+                    print(cell.value)
                     sum[idx] += cell.value
                     divisor[idx] += 1
+                print(cell.value)
         if col[0].value == "ID":
             trigger = 1
+        idx = 0
 
 
     for index, i in enumerate(sum):
