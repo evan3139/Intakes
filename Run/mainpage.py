@@ -6,7 +6,7 @@ import sys
 import openpyxl
 import xlrd
 import xlsxwriter
-from docx import Document
+from docx import *
 from Demographics import *
 from ResizeColumn import *
 from ScoreInput import fill_sheets
@@ -25,6 +25,9 @@ if file.endswith('.xlsx'):
 # This will open the document, allowing it to be read.
 directory = os.path.dirname(file)
 file_title = os.path.basename(directory)
+
+print(directory)
+print(file_title)
 
 # Create the Path needed
 newPath = 'C:/VantagePoint/Intake'
@@ -49,7 +52,7 @@ sheet = workbook_scores.add_worksheet()
 create_header(worksheet, sheet, file)
 
 row = 1
-
+print(directory)
 fileNames = os.listdir(directory)
 for files in fileNames:
     if ".docx" in files:
